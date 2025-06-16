@@ -322,7 +322,7 @@ export default function AttendanceForm({ site }: Props) {
               ) : (
                 'Confirm Attendance'
               )}
-            </button>
+            </motion.button>
           </form>
         </motion.div>
       </div>
