@@ -43,6 +43,14 @@ export default function AttendanceForm({ site }: Props) {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
+          // Replace current attendance form entry with blank page
+          window.history.replaceState(null, '', '/blank');
+          
+          // Push two more blank page entries to create a total of 3 blank pages
+          window.history.pushState(null, '', '/blank');
+          window.history.pushState(null, '', '/blank');
+          
+          // Navigate to timeout page
           navigate('/timeout');
           return 0;
         }
