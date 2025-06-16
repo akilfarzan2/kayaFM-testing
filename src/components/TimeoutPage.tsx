@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Clock, RefreshCw } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function TimeoutPage() {
@@ -38,25 +37,17 @@ export default function TimeoutPage() {
           transition={{ delay: 0.4 }}
           className="text-gray-600 mb-8 leading-relaxed"
         >
-          Your session has expired due to inactivity. Please re-scan the QR code or return to the home page to sign your attendance.
+          Your session has expired due to inactivity. Please re-scan the QR code to access the attendance form and sign your attendance.
         </motion.p>
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="space-y-4"
+          className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6"
         >
-          <Link
-            to="/"
-            className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-          >
-            <RefreshCw className="h-5 w-5 mr-2" />
-            Return to Home
-          </Link>
-
-          <p className="text-sm text-gray-500">
-            Or re-scan your QR code to access the attendance form directly
+          <p className="text-blue-800 font-medium text-sm">
+            📱 Re-scan your QR code to continue
           </p>
         </motion.div>
 
@@ -64,10 +55,10 @@ export default function TimeoutPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="mt-8 pt-6 border-t border-gray-100"
+          className="pt-6 border-t border-gray-100"
         >
           <p className="text-xs text-gray-400">
-            Sessions automatically expire after 1 minute of inactivity for security purposes
+            Sessions automatically expire after 1 minute for security purposes
           </p>
         </motion.div>
       </motion.div>
