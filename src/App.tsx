@@ -66,12 +66,12 @@ function App() {
             className="mt-8 text-center text-sm text-gray-600"
           >
             <a 
-              href="https://www.aibysolara.com" 
+              href="https://www.monarclabs.com" 
               target="_blank" 
               rel="noopener noreferrer"
               className="hover:text-indigo-600 transition-colors duration-200"
             >
-              Created by Solara
+              Created by Monarc Labs
             </a>
           </motion.div>
         </div>
