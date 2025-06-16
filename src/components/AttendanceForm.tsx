@@ -181,8 +181,11 @@ export default function AttendanceForm({ site }: Props) {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
-            <ArrowLeft className="h-5 w-5 mr-2" />
+          <Link 
+            to="/" 
+            className="inline-flex items-center text-transparent hover:text-transparent mb-6 opacity-0"
+          >
+            <ArrowLeft className="h-5 w-5 mr-2 opacity-0" />
             Back to Sites
           </Link>
         </motion.div>
@@ -319,7 +322,7 @@ export default function AttendanceForm({ site }: Props) {
               ) : (
                 'Confirm Attendance'
               )}
-            </motion.button>
+            </button>
           </form>
         </motion.div>
       </div>
