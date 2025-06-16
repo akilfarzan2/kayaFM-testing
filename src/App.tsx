@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { sites } from './data/sites';
 import AttendanceForm from './components/AttendanceForm';
 import Welcome from './components/Welcome';
+import TimeoutPage from './components/TimeoutPage';
 import { useState } from 'react';
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
                 ))}
               </div>
             } />
+            <Route path="/timeout" element={<TimeoutPage />} />
             {sites.map((site) => (
               <Route
                 key={site.id}

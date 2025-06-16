@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ClipboardCheck, Loader2, X, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ClipboardCheck, Loader2, X, CheckCircle2, ArrowLeft, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SiteConfig } from '../data/sites';
 
@@ -21,6 +21,7 @@ interface Props {
 }
 
 export default function AttendanceForm({ site }: Props) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     status: '',
@@ -31,10 +32,31 @@ export default function AttendanceForm({ site }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(60); // 1 minute timeout
   const [touched, setTouched] = useState({
     fullName: false,
     status: false,
   });
+
+  // Reset timer function
+  const resetTimer = () => {
+    setTimeLeft(60);
+  };
+
+  // Timeout countdown effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          navigate('/timeout');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [navigate]);
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -69,6 +91,7 @@ export default function AttendanceForm({ site }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    resetTimer(); // Reset timer on form submission
     
     setTouched({
       fullName: true,
@@ -86,6 +109,7 @@ export default function AttendanceForm({ site }: Props) {
   const confirmSubmit = async () => {
     setIsSubmitting(true);
     setShowConfirmation(false);
+    resetTimer(); // Reset timer on confirm
 
     try {
       const time12Hour = convertTo12Hour(currentTime);
@@ -130,9 +154,45 @@ export default function AttendanceForm({ site }: Props) {
     return '';
   };
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <div className={`min-h-screen ${site.color} bg-opacity-10`}>
+    <div 
+      className={`min-h-screen ${site.color} bg-opacity-10`}
+      onMouseMove={resetTimer}
+      onKeyDown={resetTimer}
+      onClick={resetTimer}
+      onTouchStart={resetTimer}
+      onScroll={resetTimer}
+    >
       <div className="w-full max-w-lg mx-auto p-4">
+        {/* Timeout indicator */}
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className={`mb-4 p-3 rounded-lg border-2 text-center ${
+            timeLeft <= 10 
+              ? 'bg-red-50 border-red-200 text-red-700' 
+              : timeLeft <= 30 
+                ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                : 'bg-blue-50 border-blue-200 text-blue-700'
+          }`}
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Clock className={`h-4 w-4 ${timeLeft <= 10 ? 'animate-pulse' : ''}`} />
+            <span className="font-medium">
+              Session expires in: {formatTime(timeLeft)}
+            </span>
+          </div>
+          {timeLeft <= 10 && (
+            <p className="text-xs mt-1">Move your mouse or interact with the page to reset the timer</p>
+          )}
+        </motion.div>
+
         <motion.div
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -179,8 +239,12 @@ export default function AttendanceForm({ site }: Props) {
                     : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
                   }`}
                 value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, fullName: e.target.value });
+                  resetTimer();
+                }}
                 onBlur={() => setTouched(prev => ({ ...prev, fullName: true }))}
+                onFocus={resetTimer}
               />
               {getFieldError('fullName') && (
                 <p className="mt-1 text-sm text-red-600">{getFieldError('fullName')}</p>
@@ -201,6 +265,7 @@ export default function AttendanceForm({ site }: Props) {
                   onClick={() => {
                     setFormData(prev => ({ ...prev, status: 'Sign In' }));
                     setTouched(prev => ({ ...prev, status: true }));
+                    resetTimer();
                   }}
                   className={`flex-1 py-3 px-4 rounded-lg text-white font-medium transition-all duration-200
                     ${formData.status === 'Sign In'
@@ -217,6 +282,7 @@ export default function AttendanceForm({ site }: Props) {
                   onClick={() => {
                     setFormData(prev => ({ ...prev, status: 'Sign Out' }));
                     setTouched(prev => ({ ...prev, status: true }));
+                    resetTimer();
                   }}
                   className={`flex-1 py-3 px-4 rounded-lg text-white font-medium transition-all duration-200
                     ${formData.status === 'Sign Out'
@@ -289,17 +355,22 @@ export default function AttendanceForm({ site }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            onClick={resetTimer}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full border border-gray-100"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-900">Confirm Attendance Details</h2>
                 <button
-                  onClick={() => setShowConfirmation(false)}
+                  onClick={() => {
+                    setShowConfirmation(false);
+                    resetTimer();
+                  }}
                   className="text-gray-400 hover:text-gray-500 transition-colors"
                 >
                   <X className="h-6 w-6" />
@@ -333,7 +404,10 @@ export default function AttendanceForm({ site }: Props) {
               </div>
               <div className="mt-6 flex gap-4">
                 <button
-                  onClick={() => setShowConfirmation(false)}
+                  onClick={() => {
+                    setShowConfirmation(false);
+                    resetTimer();
+                  }}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                 >
                   Cancel
@@ -356,12 +430,14 @@ export default function AttendanceForm({ site }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            onClick={resetTimer}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full border border-gray-100"
+              onClick={(e) => e.stopPropagation()}
             >
               <motion.div
                 initial={{ scale: 0 }}
@@ -404,7 +480,10 @@ export default function AttendanceForm({ site }: Props) {
               </div>
               <div className="mt-6">
                 <button
-                  onClick={() => setShowSuccess(false)}
+                  onClick={() => {
+                    setShowSuccess(false);
+                    resetTimer();
+                  }}
                   className="w-full px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
                 >
                   Done
