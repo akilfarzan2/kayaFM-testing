@@ -1,23 +1,69 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 export default function BlankPage() {
   useLayoutEffect(() => {
-    // Handle browser back button attempts
+    // Create a stronger history trap by replacing the current state
+    // This effectively makes this page a "dead end" in the history stack
+    window.history.replaceState(null, '', '/blank');
+    
+    // Push multiple blank entries to create a deeper trap
+    for (let i = 0; i < 3; i++) {
+      window.history.pushState(null, '', '/blank');
+    }
+  }, []);
+
+  useEffect(() => {
+    // Handle browser back button attempts with more aggressive prevention
     const handlePopState = (event: PopStateEvent) => {
-      // Prevent going back by moving forward in history
-      window.history.forward();
+      // Prevent the default back navigation
+      event.preventDefault();
+      
+      // Immediately push forward multiple times to counteract any back navigation
+      window.history.pushState(null, '', '/blank');
+      window.history.pushState(null, '', '/blank');
+      
+      // Force forward navigation as a fallback
+      setTimeout(() => {
+        window.history.forward();
+      }, 10);
     };
 
-    // Push an initial state to prevent going back
-    window.history.pushState(null, '', '/blank');
+    // Handle page visibility changes (when user switches tabs/apps and comes back)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // When page becomes visible again, reinforce the history trap
+        window.history.pushState(null, '', '/blank');
+      }
+    };
 
-    // Add event listener for browser back button
+    // Handle focus events (additional reinforcement)
+    const handleFocus = () => {
+      window.history.pushState(null, '', '/blank');
+    };
+
+    // Add multiple event listeners for comprehensive coverage
     window.addEventListener('popstate', handlePopState);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    
+    // Mobile-specific: Handle touch events that might trigger navigation
+    const handleTouchStart = (e: TouchEvent) => {
+      // If touch starts near the left edge (common swipe-back gesture area)
+      if (e.touches[0] && e.touches[0].clientX < 50) {
+        // Reinforce history trap
+        window.history.pushState(null, '', '/blank');
+      }
+    };
 
-    // Cleanup event listener on component unmount
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+
+    // Cleanup all event listeners on component unmount
     return () => {
       window.removeEventListener('popstate', handlePopState);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('touchstart', handleTouchStart);
     };
   }, []);
 
