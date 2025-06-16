@@ -43,7 +43,7 @@ export default function AttendanceForm({ site }: Props) {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          navigate('/timeout', { replace: true });
+          navigate('/timeout');
           return 0;
         }
         return prev - 1;
