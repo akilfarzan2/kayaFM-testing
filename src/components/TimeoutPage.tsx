@@ -1,21 +1,19 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useLayoutEffect } from 'react';
 import { Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function TimeoutPage() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Replace current history entry to prevent direct back navigation
-    navigate('/timeout', { replace: true });
-
-    // Handle browser back button
-    const handlePopState = () => {
-      // If user tries to go back from timeout page, redirect to blank page
-      if (window.location.pathname === '/timeout') {
-        navigate('/blank', { replace: true });
-      }
+  useLayoutEffect(() => {
+    // Replace the current history entry with blank page
+    window.history.replaceState(null, '', '/blank');
+    
+    // Push the timeout page back onto the history stack
+    window.history.pushState(null, '', '/timeout');
+    
+    // Handle browser back button attempts
+    const handlePopState = (event: PopStateEvent) => {
+      // Prevent going back by pushing the timeout page again
+      window.history.pushState(null, '', '/timeout');
     };
 
     // Add event listener for browser back button
@@ -25,7 +23,7 @@ export default function TimeoutPage() {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
