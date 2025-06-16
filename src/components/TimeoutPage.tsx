@@ -9,20 +9,6 @@ export default function TimeoutPage() {
     
     // Push the timeout page back onto the history stack
     window.history.pushState(null, '', '/timeout');
-    
-    // Handle browser back button attempts
-    const handlePopState = (event: PopStateEvent) => {
-      // Prevent going back by pushing the timeout page again
-      window.history.pushState(null, '', '/timeout');
-    };
-
-    // Add event listener for browser back button
-    window.addEventListener('popstate', handlePopState);
-
-    // Cleanup event listener on component unmount
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
   }, []);
 
   return (

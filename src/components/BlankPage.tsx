@@ -5,8 +5,8 @@ export default function BlankPage() {
   useLayoutEffect(() => {
     // Handle browser back button attempts
     const handlePopState = (event: PopStateEvent) => {
-      // Prevent going back by pushing the blank page again
-      window.history.pushState(null, '', '/blank');
+      // Prevent going back by moving forward in history
+      window.history.forward();
     };
 
     // Push an initial state to prevent going back
