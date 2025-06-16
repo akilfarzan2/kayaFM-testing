@@ -5,6 +5,7 @@ import { sites } from './data/sites';
 import AttendanceForm from './components/AttendanceForm';
 import Welcome from './components/Welcome';
 import TimeoutPage from './components/TimeoutPage';
+import BlankPage from './components/BlankPage';
 import { useState } from 'react';
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
               </div>
             } />
             <Route path="/timeout" element={<TimeoutPage />} />
+            <Route path="/blank" element={<BlankPage />} />
             {sites.map((site) => (
               <Route
                 key={site.id}
